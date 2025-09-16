@@ -1,19 +1,11 @@
 <template>
   <div class="gamepad-button-watcher">
-    <slot :pressed="buttonState.pressed"></slot>
+    Button {{ buttonIndex !== null ? buttonIndex : buttonName }}: {{ buttonPressed ? 'Pressed' : 'Released' }}
   </div>
 </template>
-
 <script lang="ts">
 export default {
   props: {
-    button: {
-      type: Object,
-      required: true,
-      validator: (value: any) => {
-        return value && 'pressed' in value;
-      }
-    },
     buttonIndex: {
       type: Number,
       default: null
@@ -21,22 +13,18 @@ export default {
     buttonName: {
       type: String,
       default: ''
+    },
+    buttonPressed: {
+      type: Boolean,
+      default: false
     }
   },
-  data() {
-    return {
-      buttonState: {
-        pressed: false
-      }
-    };
-  },
   watch: {
-    'button.pressed': {
+    buttonPressed: {
       async handler(newValue: boolean, oldValue: boolean) {
         if (newValue !== oldValue) {
           const buttonInfo = this.buttonIndex !== null ? `Button ${this.buttonIndex}` : 'Button';
           console.log(`${buttonInfo} pressed state changed: ${newValue}`);
-          this.buttonState.pressed = newValue;
           if (newValue === true) {
             await this.keyEvents.append(this.buttonName);
           }
@@ -44,12 +32,6 @@ export default {
         }
       },
       immediate: true
-    }
-  },
-  created() {
-    // Initialize button state
-    if (this.button) {
-      this.buttonState.pressed = this.button.pressed;
     }
   },
   computed: {

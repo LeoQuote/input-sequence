@@ -4,10 +4,7 @@ export const useKeyEvents = defineStore('keyEvents', {
     description: '',
     keyEventSequence: [] as string[],
     keyEventDisplaySequence: [] as string[],
-    modifierStatus: [
-        { name: 'LT', active: false },
-        { name: 'RT', active: false },
-    ]
+    modifierStatus: [] as { name: string; active: boolean }[]
   }),
   actions: {
     async append(keyName: string) {

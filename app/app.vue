@@ -5,33 +5,46 @@
       <span>
         {{ gamepad?.id }}
       </span>
-    </p>    
-    <!-- Using the GamepadButtonWatcher component -->
-    <div v-if="gamepad">
+    </p>
+    <div v-show="controller && gamepad">
+      <!-- 摇杆状态展示 -->
+      <div style="display: flex; gap: 32px; margin-bottom: 16px;">
+        <GamepadAxisWatcher
+          :x="controller?.value?.stick.left.horizontal ?? 0"
+          :y="controller?.value?.stick.left.vertical ?? 0"
+          axis-name="Left Stick"
+        />
+        <GamepadAxisWatcher
+          :x="controller?.value?.stick.right.horizontal ?? 0"
+          :y="controller?.value?.stick.right.vertical ?? 0"
+          axis-name="Right Stick"
+        />
+      </div>
+      <!-- 按钮状态展示 -->
+      <GamepadModifierWatcher
+        v-for="(mod, name) in {
+          'LT': controller?.value?.triggers.left,
+          'RT': controller?.value?.triggers.right,
+        }"
+        :key="name"
+        :button-name="name"
+        :pressed="mod?.pressed ?? false"
+      >
+      </GamepadModifierWatcher>
       <GamepadButtonWatcher
         v-for="(button, name) in controller?.value?.buttons"
         :key="name"
-        :button="button"
-        :button-name="name"
+        :button-name="name",
+        :button-pressed="button?.pressed ?? false"
       >
-        <template #default="{ pressed }">
-          <div class="button-status">
-            Button {{ name }}: {{ pressed ? 'Pressed' : 'Released' }}
-          </div>
-        </template>
       </GamepadButtonWatcher>
       <br/>
       <GamepadButtonWatcher
         v-for="(dpad, dpadname) in controller?.value?.dpad"
         :key="dpadname"
-        :button="dpad"
+        :button-pressed="dpad?.pressed ?? false"
         :button-name="dpadname"
       >
-        <template #default="{ pressed }">
-          <div class="button-status">
-            {{ dpadname }}: {{ pressed ? 'Pressed' : 'Released' }}
-          </div>
-        </template>
       </GamepadButtonWatcher>
       <br/>
       <div>
@@ -57,12 +70,11 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useGamepad } from '@vueuse/core'
+import { useGamepad, mapGamepadToXbox360Controller } from '@vueuse/core'
 import { computed } from 'vue'
-import { mapGamepadToXbox360Controller} from '@vueuse/core'
 
 const { isSupported, gamepads } = useGamepad()
-const gamepad = computed(() => gamepads.value.find(g => g.mapping === 'standard'))
+const gamepad = computed(() => gamepads.value.find(g => g.connected === true))
 const controller = computed(() => gamepad.value ? mapGamepadToXbox360Controller(gamepad) : null)
 const keyEvents = useKeyEvents();
 </script>
