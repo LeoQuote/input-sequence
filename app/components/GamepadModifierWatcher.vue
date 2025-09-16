@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useKeyEvents } from '@/stores/events'
-import { defineProps } from 'vue'
 
 const props = defineProps<{
   buttonName: string
